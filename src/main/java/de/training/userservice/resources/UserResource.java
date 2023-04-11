@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 public class UserResource {
     @GetMapping
     public Set<User> getUsers() {
-        Set<User> users = Set.of(
+        var users = Set.of(
                 new User("Tom", "Jones", "tom.jones@mail.com"),
                 new User("Gunnar", "Wild", "gunnar.wild@somemail.com")
         );
