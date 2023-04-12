@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -19,16 +20,22 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequestMapping("/users")
 public class UserResource {
-    private Set<User> users = new HashSet<>(Set.of(
+    private final Set<User> users = new HashSet<>(Set.of(
             new User(UUID.fromString("ffd36e3c-a658-48e5-b33b-0b4017ee1a7e"), "Tom", "Jones", "tom.jones@mail.com"),
             new User(UUID.fromString("363a48d8-bc82-4d83-b708-42d6303b537c"), "Gunnar", "Wild", "gunnar.wild@somemail.com"
             )));
 
     @GetMapping
-    public Set<User> getUsers() {
-        log.info("Get users called: {}", users.stream().map(Objects::toString).collect(Collectors.joining(", ")));
-        return users;
+    public Set<User> getUsers(@RequestParam(required = false) String firstName, @RequestParam(required = false) String lastName) {
+        log.info("Get users called with firstName={} and lastName={}", firstName, lastName);
+        log.info("Get users result: {}", users.stream().map(Objects::toString).collect(Collectors.joining(", ")));
+        Predicate<User> hasFirstName = user -> firstName == null || user.firstName().equals(firstName);
+        Predicate<User> hasLastName = user -> lastName == null || user.lastName().equals(lastName);
+        return users.stream()
+                .filter(hasFirstName.and(hasLastName))
+                .collect(Collectors.toSet());
     }
+
 
     @GetMapping("/{id}")
     public User getUserBy(@PathVariable UUID id) {
@@ -52,6 +59,8 @@ public class UserResource {
         users.stream()
                 .filter(user -> user.id().equals(id))
                 .findFirst()
-                .ifPresent(user -> users.remove(user));
+                .ifPresentOrElse(user -> users.remove(user), () -> {
+                    throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+                });
     }
 }
