@@ -38,6 +38,9 @@ public class UserResource {
     @DeleteMapping("/{id}")
     public void deleteUser(@PathVariable UUID id) {
         log.info("Delete user called: {}", id);
-        users.removeIf(user -> user.id().equals(id));
+        users.stream()
+                .filter(user -> user.id().equals(id))
+                .findFirst()
+                .ifPresent(user -> users.remove(user));
     }
 }
