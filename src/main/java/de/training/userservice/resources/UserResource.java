@@ -59,7 +59,7 @@ public class UserResource {
         users.stream()
                 .filter(user -> user.id().equals(id))
                 .findFirst()
-                .ifPresentOrElse(user -> users.remove(user), () -> {
+                .ifPresentOrElse(users::remove, () -> {
                     throw new ResponseStatusException(HttpStatus.NOT_FOUND);
                 });
     }
