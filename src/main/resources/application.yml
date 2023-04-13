@@ -4,16 +4,16 @@ logging:
     org.hibernate.SQL: DEBUG
 
 spring:
-  #  datasource:
-  #    driverClassName: org.h2.Driver
-  #    url: jdbc:h2:~/hibernate-demo:demodb;AUTO_SERVER=TRUE
-  #    username: sa
-  #    password:
+  datasource:
+    driverClassName: org.h2.Driver
+    url: jdbc:h2:~/abat-demo:demodb;AUTO_SERVER=TRUE
+    username: sa
+    password:
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
-    #    properties:
-    #      hibernate:
-    #        type:
-    #          preferred_uuid_jdbc_type: CHAR
+    properties:
+      hibernate:
+        type:
+          preferred_uuid_jdbc_type: CHAR
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
