@@ -30,14 +30,7 @@ public class UserResource {
     @GetMapping
     public Set<User> getUsers(@RequestParam(required = false) String firstName, @RequestParam(required = false) String lastName) {
         log.info("Get users called with firstName={} and lastName={}", firstName, lastName);
-        if (firstName != null && lastName != null) {
-            return mapToModel(repository.findByFirstNameAndLastName(firstName, lastName));
-        } else if (firstName != null) {
-            return mapToModel(repository.findByFirstName(firstName));
-        } else if (lastName != null) {
-            return mapToModel(repository.findByLastName(lastName));
-        }
-        return mapToModel(repository.findAll());
+        return mapToModel(repository.findByFirstNameAndLastName(firstName, lastName));
     }
 
 

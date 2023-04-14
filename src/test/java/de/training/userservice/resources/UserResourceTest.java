@@ -38,7 +38,7 @@ class UserResourceTest {
         var secondUserId = UUID.randomUUID();
         var firstUserFirstName = "someFirstName";
         var secondUserFirstName = "secondFirstName";
-        Mockito.when(repository.findAll()).thenReturn(
+        Mockito.when(repository.findByFirstNameAndLastName(null, null)).thenReturn(
                 List.of(
                         createUser(firstUserId, firstUserFirstName, "someLastName", "some@email.de"),
                         createUser(secondUserId, secondUserFirstName, "secondLastName", "second@email.de"))
@@ -59,7 +59,7 @@ class UserResourceTest {
     void getUsersReturnsOneUserWhenWeFilterByFirstName() {
         var firstUserId = UUID.randomUUID();
         var firstUserFirstName = "someMatchingFirstName";
-        Mockito.when(repository.findByFirstName(firstUserFirstName)).thenReturn(
+        Mockito.when(repository.findByFirstNameAndLastName(firstUserFirstName, null)).thenReturn(
                 List.of(
                         createUser(firstUserId, firstUserFirstName, "someLastName", "some@email.de")
                 ));
