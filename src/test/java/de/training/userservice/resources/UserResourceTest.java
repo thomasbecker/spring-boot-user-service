@@ -24,7 +24,6 @@ import static org.hamcrest.CoreMatchers.is;
 class UserResourceTest {
     @LocalServerPort
     private int port;
-
     @MockBean
     private UserRepository repository;
 
@@ -34,15 +33,15 @@ class UserResourceTest {
     }
 
     @Test
-    void getUsers() {
+    void getUsersReturnsTwoUsersWhenRepositoryHasTwoUsers() {
         var firstUserId = UUID.randomUUID();
         var secondUserId = UUID.randomUUID();
         var firstUserFirstName = "someFirstName";
         var secondUserFirstName = "secondFirstName";
         Mockito.when(repository.findAll()).thenReturn(
                 List.of(
-                        new UserEntity(firstUserId, firstUserFirstName, "someLastName", "some@email.de"),
-                        new UserEntity(secondUserId, secondUserFirstName, "secondLastName", "second@email.de"))
+                        createUser(firstUserId, firstUserFirstName, "someLastName", "some@email.de"),
+                        createUser(secondUserId, secondUserFirstName, "secondLastName", "second@email.de"))
         );
         when().get("/users")
                 .then().log().all()
@@ -50,5 +49,25 @@ class UserResourceTest {
                 .body("id", hasItems(firstUserId.toString(), secondUserId.toString()),
                         "firstName", hasItems(firstUserFirstName, secondUserFirstName),
                         "size()", is(2));
+    }
+
+    private static UserEntity createUser(UUID firstUserId, String firstUserFirstName, String someLastName, String email) {
+        return new UserEntity(firstUserId, firstUserFirstName, someLastName, email);
+    }
+
+    @Test
+    void getUsersReturnsOneUserWhenWeFilterByFirstName() {
+        var firstUserId = UUID.randomUUID();
+        var firstUserFirstName = "someMatchingFirstName";
+        Mockito.when(repository.findByFirstName(firstUserFirstName)).thenReturn(
+                List.of(
+                        createUser(firstUserId, firstUserFirstName, "someLastName", "some@email.de")
+                ));
+        when().get("/users?firstName=%s".formatted(firstUserFirstName))
+                .then().log().all()
+                .statusCode(200)
+                .body("id", hasItems(firstUserId.toString()),
+                        "firstName", hasItems(firstUserFirstName),
+                        "size()", is(1));
     }
 }

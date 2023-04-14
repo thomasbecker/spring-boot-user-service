@@ -8,11 +8,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Objects;
+import java.util.Collection;
 import java.util.Set;
 import java.util.UUID;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
 
 /**
  * Created by Thomas Becker (thomas.becker00@gmail.com) on 11.04.23.
@@ -30,14 +30,19 @@ public class UserResource {
     @GetMapping
     public Set<User> getUsers(@RequestParam(required = false) String firstName, @RequestParam(required = false) String lastName) {
         log.info("Get users called with firstName={} and lastName={}", firstName, lastName);
-        var users = repository.findAll();
-        log.info("Get users result: {}", users.stream().map(Objects::toString).collect(Collectors.joining(", ")));
-        Predicate<User> hasFirstName = user -> firstName == null || user.firstName().equals(firstName);
-        Predicate<User> hasLastName = user -> lastName == null || user.lastName().equals(lastName);
-        return users.stream()
-                .map(UserEntity::from)
-                .filter(hasFirstName.and(hasLastName))
-                .collect(Collectors.toSet());
+        if (firstName != null && lastName != null) {
+            return mapToModel(repository.findByFirstNameAndLastName(firstName, lastName));
+        } else if (firstName != null) {
+            return mapToModel(repository.findByFirstName(firstName));
+        } else if (lastName != null) {
+            return mapToModel(repository.findByLastName(lastName));
+        }
+        return mapToModel(repository.findAll());
+    }
+
+
+    private Set<User> mapToModel(Collection<UserEntity> userEntities) {
+        return userEntities.stream().map(UserEntity::from).collect(Collectors.toSet());
     }
 
 
@@ -60,6 +65,7 @@ public class UserResource {
 
     @DeleteMapping("/{id}")
     public void deleteUser(@PathVariable UUID id) {
+
         log.info("Delete user called: {}", id);
         var user = repository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         repository.delete(user);
