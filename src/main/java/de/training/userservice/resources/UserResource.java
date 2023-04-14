@@ -34,14 +34,10 @@ public class UserResource {
         log.info("Get users result: {}", users.stream().map(Objects::toString).collect(Collectors.joining(", ")));
         Predicate<User> hasFirstName = user -> firstName == null || user.firstName().equals(firstName);
         Predicate<User> hasLastName = user -> lastName == null || user.lastName().equals(lastName);
-        var filteredUsers = users.stream()
+        return users.stream()
                 .map(UserEntity::from)
                 .filter(hasFirstName.and(hasLastName))
                 .collect(Collectors.toSet());
-        if (filteredUsers.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
-        return filteredUsers;
     }
 
 
