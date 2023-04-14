@@ -17,11 +17,30 @@ class UserRepositoryTest {
 
     @Test
     void findByFirstNameAndLastNameReturnsAllResultsWhenFilteringParametersAreNotSet() {
-        userRepository.save(createTestUser("someFirstName", "someLastName", "some@email.de"));
-        userRepository.save(createTestUser("someSecondName", "someOtherLastName", "some@email.de"));
+        createAndPersistBasicTestDataSet();
 
         var users = userRepository.findByFirstNameAndLastName(null, null);
+        assertThat(users.size(), is(5));
+    }
+
+    @Test
+    void findByFirstNameAndLastNameReturnsFilteredResultsWhenFilteringByFirstName() {
+        // given
+        createAndPersistBasicTestDataSet();
+
+        // when
+        var users = userRepository.findByFirstNameAndLastName("Tom", null);
+
+        // then
         assertThat(users.size(), is(2));
+    }
+
+    private void createAndPersistBasicTestDataSet() {
+        userRepository.save(createTestUser("Tom", "Jones", "some@email.de"));
+        userRepository.save(createTestUser("John", "Jones", "some@email.de"));
+        userRepository.save(createTestUser("Tom", "Wild", "some@email.de"));
+        userRepository.save(createTestUser("John", "Wild", "some@email.de"));
+        userRepository.save(createTestUser("Jane", "Doe", "some@email.de"));
     }
 
     @Test
