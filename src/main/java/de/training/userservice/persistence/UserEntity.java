@@ -1,23 +1,23 @@
 package de.training.userservice.persistence;
 
 import de.training.userservice.model.User;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
+import java.util.Set;
 import java.util.UUID;
 
 /**
  * Created by Thomas Becker (thomas.becker00@gmail.com) on 12.04.23.
  */
 @Entity(name = "Person")
-public class UserEntity {
-    @Id
-    @GeneratedValue
-    private UUID id;
+public class UserEntity extends BaseEntity {
     private String firstName;
     private String lastName;
     private String email;
+    @OneToMany(mappedBy = "user",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
+    private Set<AddressEntity> address;
 
     public UserEntity(UUID id, String firstName, String lastName, String email) {
         this.id = id;
@@ -35,14 +35,6 @@ public class UserEntity {
 
     public static UserEntity to(User user) {
         return new UserEntity(user.id(), user.firstName(), user.lastName(), user.email());
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
     }
 
     public String getFirstName() {
@@ -69,21 +61,12 @@ public class UserEntity {
         this.email = email;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
-
-        UserEntity user = (UserEntity) o;
-
-        return id.equals(user.id);
+    public Set<AddressEntity> getAddress() {
+        return address;
     }
 
-    @Override
-    public int hashCode() {
-        return id.hashCode();
+    public void setAddress(Set<AddressEntity> address) {
+        this.address = address;
     }
 
     @Override

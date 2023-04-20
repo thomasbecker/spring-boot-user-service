@@ -1,6 +1,9 @@
 package de.training.userservice.persistence;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
@@ -35,12 +38,43 @@ class UserRepositoryTest {
         assertThat(users.size(), is(2));
     }
 
+    @DisplayName("findByFirstNameAndLastName returns correct results when filtering by last name")
+    @ParameterizedTest (name = "last name filter: {0} expected result size: {1}")
+    @CsvSource({
+            "Wild,         2",
+            "Jones,        2",
+            "Doe,          1",
+            "DoesNotExist, 0"
+    })
+    void findByFirstNameAndLastNameReturnsFilteredResultsWhenFilteringByLastName(String lastNameFilter, int expectedSize) {
+        // given
+        createAndPersistBasicTestDataSet();
+
+        // when
+        var users = userRepository.findByFirstNameAndLastName(null, lastNameFilter);
+
+        // then
+        assertThat(users.size(), is(expectedSize));
+    }
+
     private void createAndPersistBasicTestDataSet() {
         userRepository.save(createTestUser("Tom", "Jones", "some@email.de"));
         userRepository.save(createTestUser("John", "Jones", "some@email.de"));
         userRepository.save(createTestUser("Tom", "Wild", "some@email.de"));
         userRepository.save(createTestUser("John", "Wild", "some@email.de"));
         userRepository.save(createTestUser("Jane", "Doe", "some@email.de"));
+    }
+
+    @Test
+    void findByFirstNameAndLastNameReturnsFilteredResultsWhenFilteringByFirstNameAndLastName() {
+        // given
+        createAndPersistBasicTestDataSet();
+
+        // when
+        var users = userRepository.findByFirstNameAndLastName("Tom", "Wild");
+
+        // then
+        assertThat(users.size(), is(1));
     }
 
     @Test
